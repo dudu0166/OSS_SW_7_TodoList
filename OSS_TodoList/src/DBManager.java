@@ -2,6 +2,7 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 
 public class DBManager {
@@ -10,7 +11,7 @@ public class DBManager {
 
 	DBManager() {
 		try {
-			Class.forName("org.sqlite.JDBC");// JDBC µå¶óÀÌ¹ö ·Îµù.
+			Class.forName("org.sqlite.JDBC");// JDBC ï¿½ï¿½ï¿½ï¿½Ì¹ï¿½ ï¿½Îµï¿½.
 		} catch (Exception e) {
 			System.out.println("========Init Error=======");
 			e.printStackTrace();
@@ -32,7 +33,7 @@ public class DBManager {
 	public int createTable(String projectName) {
 		try {
 			if (st.executeQuery("SELECT count(*) FROM SQLITE_MASTER WHERE name = '" + projectName + "'")
-					.getBoolean("count(*)")) {// Å×ÀÌºíÀÌ Á¸ÀçÇÏ´Â Áö È®ÀÎ.
+					.getBoolean("count(*)")) {// ï¿½ï¿½ï¿½Ìºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ È®ï¿½ï¿½.
 
 				// String com = System.console().readLine("Table already exists.
 				// Would you cover the table? (y/n)").toLowerCase();
@@ -49,7 +50,7 @@ public class DBManager {
 			// primary key autoincrement, what text not null, due text not null,
 			// finished integer default 0)");
 			st.executeUpdate("CREATE TABLE IF NOT EXISTS " + projectName
-					+ " (id integer primary key autoincrement, what text not null, due text not null, finished integer default 0)");
+					+ " (id integer primary key autoincrement, what text not null, due text not null, finished integer default 0, category text default 'none')");
 			return 1;
 
 		} catch (Exception e) {
@@ -82,9 +83,7 @@ public class DBManager {
 	public boolean listTod(String projectName) {
 		try {
 			ResultSet rs = st.executeQuery("SELECT * FROM " + projectName);
-			while(rs.next()) {
-				System.out.println(rs.getString("what") + " , " + rs.getString("due"));
-			}
+			printCurrentRecords(rs);
 			rs.close();
 			return true;
 		} catch (Exception e) {
@@ -96,9 +95,7 @@ public class DBManager {
 	public boolean overdueList(String projectName) {
 		try {
 			ResultSet rs = st.executeQuery("SELECT * FROM " + projectName + " WHERE due < datetime()");
-			while (rs.next()) {
-				System.out.println(rs.getString("what") + " , " + rs.getString("due"));
-			}
+			printCurrentRecords(rs);
 			rs.close();
 			return true;
 		} catch (Exception e) {
@@ -106,4 +103,36 @@ public class DBManager {
 			return false;
 		}
 	}
+	
+	public boolean showListByCompletion(boolean isFinished) {
+		try {
+			int finished = isFinished ? 1 : 0;
+			ResultSet rs = st.executeQuery("SELECT * FROM todo WHERE finished = " + finished);
+			printCurrentRecords(rs);
+			rs.close();
+			return true;
+		} catch(Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	public boolean showListByCategory(String category) {
+		try {
+			ResultSet rs = st.executeQuery("SELECT * FROM todo WHERE category = '" + category + "'");
+			printCurrentRecords(rs);
+			rs.close();
+			return true;
+		} catch(Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	public void printCurrentRecords(ResultSet rs) throws SQLException {
+		while (rs.next()) {
+			System.out.println(rs.getString("what") + "," + rs.getString("due"));
+		}
+	}
+	
 }
