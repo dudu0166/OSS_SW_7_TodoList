@@ -4,6 +4,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.regex.Pattern;
 
 public class DBManager {
 	private Connection connection;
@@ -11,7 +12,7 @@ public class DBManager {
 
 	DBManager() {
 		try {
-			Class.forName("org.sqlite.JDBC");// JDBC ����̹� �ε�.
+			Class.forName("org.sqlite.JDBC");
 		} catch (Exception e) {
 			System.out.println("========Init Error=======");
 			e.printStackTrace();
@@ -32,23 +33,6 @@ public class DBManager {
 
 	public int createTable(String projectName) {
 		try {
-			if (st.executeQuery("SELECT count(*) FROM SQLITE_MASTER WHERE name = '" + projectName + "'")
-					.getBoolean("count(*)")) {// ���̺��� �����ϴ� �� Ȯ��.
-
-				// String com = System.console().readLine("Table already exists.
-				// Would you cover the table? (y/n)").toLowerCase();
-				//
-				// if(com.equals("n"))
-				// return 0;
-				// else if(!com.equals("y"))
-				// return -1;
-				// else
-				// return -1;
-			}
-
-			// st.executeUpdate("CREATE TABLE "+projectName+" (id integer
-			// primary key autoincrement, what text not null, due text not null,
-			// finished integer default 0)");
 			st.executeUpdate("CREATE TABLE IF NOT EXISTS " + projectName
 					+ " (id integer primary key autoincrement, what text not null, due text not null, finished integer default 0, category text default 'none')");
 			return 1;
@@ -72,7 +56,11 @@ public class DBManager {
 
 	public boolean addTodo(String what, String due) {
 		try {
-			st.executeUpdate("insert into todo (what, due) values ('" + what + "', '" + due + "')");
+			Pattern p = Pattern.compile("(^\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}$)");
+			while(!p.matcher(due).find()){
+				due = System.console().readLine("Due date? (YYYY-MM-DD HH:MM:SS)");
+			}
+			st.executeUpdate("insert into todo (what, due) values ('" + what + "', '" + due+".000" + "')");
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
