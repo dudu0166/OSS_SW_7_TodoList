@@ -60,10 +60,10 @@ public class DBManager {
 			Pattern p = Pattern.compile("(^\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}$)");
 			
 			while(!p.matcher(due).find()){
-				due = System.console().readLine("Due date? (YYYY-MM-DD HH:MM:SS)");
+				due = System.console().readLine("Due date? (YYYY-MM-DD HH:MM:SS) : ");
 			}
 			
-			executeQuery("insert into todo (what, due) values (?, ?)",what,due+".000");
+			executeUpdate("INSERT INTO todo (what, due) VALUES (?, ?)",what,due+".000");
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -119,13 +119,28 @@ public class DBManager {
 			return false;
 		}
 	}
-	
-	private ResultSet executeQuery(String sql, String... items) throws Exception{
+	//SQL Injection 대비 SQL 업데이트 메소드
+	private void executeUpdate(String sql, String... items) throws Exception{
+		
 		PreparedStatement stmt = connection.prepareStatement(sql);
 		int parameterIndex = 1;
-		for(String item : items){
+		
+		for(String item : items)
 			stmt.setString(parameterIndex++, item);
-		}
+		
+		if(stmt.executeUpdate() == 0)
+			throw new Exception();
+	}
+	//SQL Injection 대비 SQL 업데이트 메소드
+	private ResultSet executeQuery(String sql, String... items) throws Exception{
+		
+		PreparedStatement stmt = connection.prepareStatement(sql);
+		int parameterIndex = 1;
+		
+		for(String item : items)
+			stmt.setString(parameterIndex++, item);
+		
+		
 		return stmt.executeQuery();
 	}
 	
