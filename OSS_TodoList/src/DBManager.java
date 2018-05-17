@@ -5,7 +5,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Calendar;
+import java.util.TimeZone;
 import java.util.regex.Pattern;
+
+import com.diogonunes.jcdp.color.ColoredPrinter;
+import com.diogonunes.jcdp.color.api.Ansi.Attribute;
+import com.diogonunes.jcdp.color.api.Ansi.BColor;
+import com.diogonunes.jcdp.color.api.Ansi.FColor;
 
 public class DBManager {
 	private Connection connection;
@@ -137,19 +144,56 @@ public class DBManager {
 		PreparedStatement stmt = connection.prepareStatement(sql);
 		int parameterIndex = 1;
 		
-		for(String item : items)
+		for(String item : items){
+			System.out.println(parameterIndex+","+item);
 			stmt.setString(parameterIndex++, item);
-		
+		}
 		
 		return stmt.executeQuery();
 	}
 	
 	public void printCurrentRecords(ResultSet rs) throws SQLException {
-		
+		//YYYY-MM-DD HH:MM:SS
+		ColoredPrinter cp = new ColoredPrinter.Builder(1, false).build();
+		String leftAlignFormat = "| %-15s | %-23s |%n";
+		System.out.format("+-----------------+-------------------------+%n");
+		System.out.format("| What            | Due                     |%n");
+		System.out.format("+-----------------+-------------------------+%n");
 		while (rs.next()) {
-			System.out.println(rs.getString("what") + "," + rs.getString("due"));
+			String what = rs.getString("what");
+			String due = rs.getString("due");
+			
+			if(dDay(Integer.parseInt(due.substring(0, 4)),Integer.parseInt(due.substring(5, 7)),Integer.parseInt(due.substring(8, 10))) >= -7){
+				cp.print("|");
+				cp.print(String.format(" %-15s " , what),Attribute.NONE, FColor.WHITE, BColor.RED);
+				cp.clear();
+				cp.print("|");
+				cp.print(String.format(" %-23s " , due),Attribute.NONE, FColor.WHITE, BColor.RED);
+				cp.clear();
+				cp.println("|");
+			}else{
+				System.out.print(String.format(leftAlignFormat , what , due ));
+			}
+			
 		}
+		System.out.format("+-----------------+-------------------------+%n");
 		
+	}
+	
+	private int dDay(int y, int m, int d){
+		TimeZone tz = TimeZone.getTimeZone("Asia/Seoul");
+		
+		Calendar today = Calendar.getInstance(tz);
+		Calendar dday = Calendar.getInstance(tz); 
+		
+		dday.set(y,m-1,d);
+		
+		long day = dday.getTimeInMillis()/86400000; 
+		long tday = today.getTimeInMillis()/86400000; 
+		long count = tday - day;
+		
+		return (int)(count+1); // 날짜는 하루 + 시켜줘야합니다.
+
 	}
 	
 }
