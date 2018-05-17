@@ -1,6 +1,7 @@
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -57,10 +58,12 @@ public class DBManager {
 	public boolean addTodo(String what, String due) {
 		try {
 			Pattern p = Pattern.compile("(^\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}$)");
+			
 			while(!p.matcher(due).find()){
 				due = System.console().readLine("Due date? (YYYY-MM-DD HH:MM:SS)");
 			}
-			st.executeUpdate("insert into todo (what, due) values ('" + what + "', '" + due+".000" + "')");
+			
+			executeQuery("insert into todo (what, due) values (?, ?)",what,due+".000");
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -107,7 +110,7 @@ public class DBManager {
 	
 	public boolean showListByCategory(String category) {
 		try {
-			ResultSet rs = st.executeQuery("SELECT * FROM todo WHERE category = '" + category + "'");
+			ResultSet rs = executeQuery("SELECT * FROM todo WHERE category = ?",category);
 			printCurrentRecords(rs);
 			rs.close();
 			return true;
@@ -117,10 +120,21 @@ public class DBManager {
 		}
 	}
 	
+	private ResultSet executeQuery(String sql, String... items) throws Exception{
+		PreparedStatement stmt = connection.prepareStatement(sql);
+		int parameterIndex = 1;
+		for(String item : items){
+			stmt.setString(parameterIndex++, item);
+		}
+		return stmt.executeQuery();
+	}
+	
 	public void printCurrentRecords(ResultSet rs) throws SQLException {
+		
 		while (rs.next()) {
 			System.out.println(rs.getString("what") + "," + rs.getString("due"));
 		}
+		
 	}
 	
 }
