@@ -1,0 +1,19 @@
+.\" Manpage for Todolist.
+.\" Contact vivek@nixcraft.net.in to correct errors or typos.
+.TH man 8 "00 May 2018" "1.0" "Todolist man page"
+.SH NAME
+TODO LIST
+.SH SYNOPSIS
+This <TODO LIST> made by team 7.
+.br
+This list blah blah~~~
+.SH DESCRIPTION
+TODO List is 
+.SH OPTIONS
+The TODO List 
+.SH SEE ALSO
+???? 
+.SH BUGS
+No known bugs.
+.SH AUTHOR
+Team 7
