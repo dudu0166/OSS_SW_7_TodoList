@@ -55,7 +55,10 @@ public class Main {
 			while(true) {
 				tag = console.readLine("Tag name(enter 'q' to quit) : ");
 				if(tag.equals("q"))	break;
-				db.addTag(what, tag);
+				if(db.hasTag(what, tag))	
+					System.out.println("This tag already exists on this entry!");
+				else 
+					db.addTag(what, tag);
 			}
 		}
 	}
@@ -96,6 +99,7 @@ public class Main {
 				+ "3. The list whose due has not expired\n"
 				+ "4. Finished list\n"
 				+ "5. Unfinished list\n"
+				+ "6. Show list by tags\n"
 				+ "0. Return\n"
 				+ ": ";
 		
@@ -118,10 +122,19 @@ public class Main {
 			case "5":
 				db.showListByCompletion(false);
 				break;
+			case "6":
+				passTag(console, db);
 				
 			}
 		}
 
+	}
+	
+	private static void passTag(Console console, DBManager db) {
+		String inp, tags[];
+		inp = console.readLine("Enumerate tags what you want to view.(Use space as a delimiter)\n");
+		tags = inp.split(" ");
+		db.showListByTags(tags);
 	}
 
 }

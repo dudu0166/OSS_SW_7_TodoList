@@ -43,10 +43,11 @@ public class DBManager {
 	public int createTable(String projectName) {
 		try {
 			st.executeUpdate("CREATE TABLE IF NOT EXISTS " + projectName
-					+ " (id integer primary key autoincrement, what text unique not null, due text not null, finished integer default 0, category text default 'none')");
+					+ " (id INTEGER PRIMARY KEY AUTOINCREMENT, what TEXT UNIQUE NOT NULL, due TEXT NOT NULL,"
+					+ "finished INTEGER DEFAULT 0, priority INTEGER DEFAULT 0, category TEXT DEFAULT 'none')");
 			st.executeUpdate("CREATE TABLE IF NOT EXISTS tag "
-					+ "(id integer primary key autoincrement, name text not null, todo_id integer,"
-					+ "		foreign key (todo_id) references todo(id) on update cascade) ");
+					+ "(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, todo_id INTEGER,"
+					+ "		FOREIGN KEY (todo_id) REFERENCES todo(id) ON UPDATE CASCADE) ");
 			commit();
 			return 1;
 		} catch (Exception e) {
@@ -136,16 +137,23 @@ public class DBManager {
 		}
 	}
 	
-	public boolean showListByCategory(String category) {
+	/*Check the repetition so that a tuple can't have the same tag names.*/
+	public boolean hasTag(String what, String tagName) {
 		try {
-			ResultSet rs = executeQuery("SELECT * FROM todo WHERE category = ?",category);
-			printCurrentRecords(rs);
-			rs.close();
-			return true;
-		} catch(Exception e) {
+			String todoID;
+			ResultSet idSearchResult = executeQuery("SELECT id FROM todo WHERE what = ?", what), tagSearchResult;
+			if(idSearchResult.next()) {
+				todoID = idSearchResult.getString(1); 
+				tagSearchResult = executeQuery("SELECT * FROM tag WHERE name = ? AND todo_id = ?", tagName, todoID);
+				if(tagSearchResult.next()) {
+					System.out.println(tagSearchResult.getString("name") + " " + tagSearchResult.getString("todo_id"));
+					return true;
+				}
+			}
+		} catch (Exception e) {
 			e.printStackTrace();
-			return false;
 		}
+		return false;
 	}
 	
 	public boolean addTag(String what, String tagName) {
@@ -161,6 +169,22 @@ public class DBManager {
 			rollback();
 			e.printStackTrace();
 			return false;
+		}
+	}
+	
+	public void showListByTags(String[] tags) {
+		try {
+			ResultSet rs;
+			StringBuilder query = new StringBuilder("todo ");
+			int numOfTags = tags.length;
+			for(int i = 0; i < numOfTags; i++) {
+				query = new StringBuilder("(SELECT * FROM ").append(query.toString())
+						.append("WHERE id IN (SELECT todo_id FROM tag WHERE name = ?) )");
+			}
+			rs = executeQuery(query.substring(1,query.length()-2), tags);
+			printCurrentRecords(rs);
+		} catch(Exception e) {
+			e.printStackTrace();
 		}
 	}
 	
@@ -221,7 +245,7 @@ public class DBManager {
 	
 	private void printTagsOf(String id) {
 		try {
-			ResultSet rs = executeQuery("SELECT name from tag where todo_id = ?", id);
+			ResultSet rs = executeQuery("SELECT name FROM tag WHERE todo_id = ?", id);
 			System.out.print(" Tags : ");
 			while(rs.next()) {
 				System.out.print(rs.getString(1) + " ");
@@ -261,8 +285,5 @@ public class DBManager {
 
 	}
 	
-	public void addCategory(String name) {
-		
-	}
 	
 }
