@@ -13,7 +13,7 @@ public class Main {
 			switch (console.readLine("\nChoose what to do:\n(a: Add todo, l: List todo, m: Modify todo, o: Overdue todo,"
 					+ "f: view finished list only, u: view unfinished list only q: Quit)?")) {
 			case "a":
-				if(db.addTodo(console.readLine("Todo?"), console.readLine("Due date?")))
+				if(db.addTodo(console.readLine("Todo? : "), console.readLine("Due date? (YYYY-MM-DD HH:MM:SS) : ")))
 					System.out.println("=======Add Success=======");
 				else
 					System.out.println("=======Add Fail=======");
