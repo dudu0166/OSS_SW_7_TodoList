@@ -1,3 +1,6 @@
+
+
+
 import java.io.Console;
 
 public class Main {
@@ -10,8 +13,9 @@ public class Main {
 		db.createTable("todo");
 
 		while (true) { 
-			switch (console.readLine("\nChoose what to do:\n(a: Add todo, l: List todo, m: Modify todo,"
-					+ " t: Tag settings, q: Quit)? ")) {
+			String command = console.readLine("\nChoose what to do:\n(a: Add todo, l: List todo, m: Modify todo,"
+					+ " t: Tag settings, q: Quit)? ");
+			switch (command) {
 			case "a":
 				addList(console, db);
 				break;
@@ -28,6 +32,12 @@ public class Main {
 				System.exit(0);
 				break;
 			default:
+				if(command.matches("^l\\s-..?$")){
+					if(command.length() == 4)
+						db.listTodo("todo", command.charAt(3));
+					else
+						db.listTodo("todo", command.charAt(3),command.charAt(4));
+				}
 				break;
 			}
 		}
@@ -108,7 +118,7 @@ public class Main {
 			if(ans.equals("0")) break;
 			switch(ans) {
 			case "1":
-				db.listTod("todo");
+				db.listTodo("todo");
 				break;
 			case "2":
 				db.overdueList("todo", true);

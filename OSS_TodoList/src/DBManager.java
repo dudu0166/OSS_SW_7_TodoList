@@ -99,9 +99,42 @@ public class DBManager {
 		return true;
 	}
 
-	public boolean listTod(String projectName) {
+	public boolean listTodo(String projectName) {
 		try {
 			ResultSet rs = st.executeQuery("SELECT * FROM " + projectName);
+			printCurrentRecords(rs);
+			rs.close();
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	public boolean listTodo(String projectName,char... options) {
+		try {
+			ResultSet rs;
+			switch(options[0]){
+			case 'a':
+				rs = st.executeQuery("SELECT * FROM " + projectName);
+				break;
+			case 'w':
+				rs = st.executeQuery("SELECT * FROM "+projectName+" WHERE due BETWEEN date('now','weekday 0') AND date('now','weekday 0','+6 days')");
+				break;
+			case 't':
+				rs = st.executeQuery("SELECT * FROM "+projectName+" WHERE due LIKE date('now','localtime')||'%'");
+				break;
+			default:
+				if((options.length == 1) && (49 <=options[0] && options[0]<=57)){
+					rs = st.executeQuery("SELECT * FROM "+projectName+" WHERE due LIKE strftime('%Y','now')||'-0"+options[0]+"'||'%'");
+				}else if((options.length == 2) && (options[0] == 49)){
+					rs = st.executeQuery("SELECT * FROM "+projectName+" WHERE due LIKE strftime('%Y','now')||'-"+options[0]+options[1]+"'||'%'");
+				}else{
+					rs = st.executeQuery("SELECT * FROM " + projectName);
+				}
+				break;
+			}
+
 			printCurrentRecords(rs);
 			rs.close();
 			return true;
@@ -237,6 +270,7 @@ public class DBManager {
 			}else{
 				System.out.print(String.format(leftAlignFormat , what , due ));
 			}
+
 			printTagsOf(rs.getString("id"));
 		}
 		System.out.format("+-----------------+-------------------------+%n");
