@@ -1,0 +1,16 @@
+name: todo
+version: '0.1' # just for humans, typically '1.2+git' or '1.3.2'
+summary: Todo list 
+description: |
+  Todo List for command line
+  Part of the "OSS SW Development" class
+
+grade: devel # must be 'stable' to release into candidate/stable channels
+confinement: devmode # use 'strict' once you have the right plugs and slots
+
+parts:
+  todo:
+    # See 'snapcraft plugins'
+    plugin: gradle
+    source: https://github.com/promisemee/OSS_SW_7_TodoList.git
+    source-type: git
