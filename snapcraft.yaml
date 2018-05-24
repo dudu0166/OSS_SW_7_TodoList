@@ -14,3 +14,11 @@ parts:
     plugin: gradle
     source: https://github.com/promisemee/OSS_SW_7_TodoList.git
     source-type: git
+    build: |
+      export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64"
+      gradle release -x test -x createGitTag
+    install: |
+      unzip DIST/todo_bin-*.zip -d $SNAPCRAFT_PART_INSTALL/
+    build-packages:
+      - unzip
+      - openjdk-8-jdk
