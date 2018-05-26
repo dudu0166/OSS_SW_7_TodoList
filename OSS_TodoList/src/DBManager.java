@@ -17,6 +17,7 @@ import com.diogonunes.jcdp.color.api.Ansi.FColor;
 public class DBManager {
 	private Connection connection;
 	private Statement st;
+	private String orderCriteria = "what";
 
 	DBManager() {
 		try {
@@ -83,14 +84,17 @@ public class DBManager {
 		}
 	}
 
-	public boolean addTodo(String what, String due) {
+	public boolean addTodo(String what, String due, String priority) {
 		Pattern p = Pattern.compile("(^\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}$)");
 		
 		while(!p.matcher(due).find()){
 			due = System.console().readLine("Due date? (YYYY-MM-DD HH:MM:SS) : ");
 		}
+		
+		//Todo: check if priority is integer value
+		
 		try {
-			executeUpdate("INSERT INTO todo (what, due) VALUES (?, ?)",what,due+".000");
+			executeUpdate("INSERT INTO todo (what, due, priority) VALUES (?, ?, ?)",what,due+".000", priority);
 			commit();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -101,7 +105,7 @@ public class DBManager {
 
 	public boolean listTodo(String projectName) {
 		try {
-			ResultSet rs = st.executeQuery("SELECT * FROM " + projectName);
+			ResultSet rs = st.executeQuery("SELECT * FROM " + projectName + " ORDER BY " + orderCriteria);
 			printCurrentRecords(rs);
 			rs.close();
 			return true;
@@ -114,27 +118,27 @@ public class DBManager {
 	public boolean listTodo(String projectName,char... options) {
 		try {
 			ResultSet rs;
+			String sql = "SELECT * FROM " + projectName;
 			switch(options[0]){
 			case 'a':
-				rs = st.executeQuery("SELECT * FROM " + projectName);
+				sql = "SELECT * FROM " + projectName;
 				break;
 			case 'w':
-				rs = st.executeQuery("SELECT * FROM "+projectName+" WHERE due BETWEEN date('now','weekday 0') AND date('now','weekday 0','+6 days')");
+				sql += " WHERE due BETWEEN date('now','weekday 0') AND date('now','weekday 0','+6 days')";
 				break;
 			case 't':
-				rs = st.executeQuery("SELECT * FROM "+projectName+" WHERE due LIKE date('now','localtime')||'%'");
+				sql += " WHERE due LIKE date('now','localtime')||'%'";
 				break;
 			default:
 				if((options.length == 1) && (49 <=options[0] && options[0]<=57)){
-					rs = st.executeQuery("SELECT * FROM "+projectName+" WHERE due LIKE strftime('%Y','now')||'-0"+options[0]+"'||'%'");
+					sql += " WHERE due LIKE strftime('%Y','now')||'-0"+options[0]+"'||'%'";
 				}else if((options.length == 2) && (options[0] == 49)){
-					rs = st.executeQuery("SELECT * FROM "+projectName+" WHERE due LIKE strftime('%Y','now')||'-"+options[0]+options[1]+"'||'%'");
-				}else{
-					rs = st.executeQuery("SELECT * FROM " + projectName);
+					sql += " WHERE due LIKE strftime('%Y','now')||'-"+options[0]+options[1]+"'||'%'";
 				}
 				break;
 			}
-
+			sql += " ORDER BY " + orderCriteria; // insert sorting option
+			rs = st.executeQuery(sql);
 			printCurrentRecords(rs);
 			rs.close();
 			return true;
@@ -147,7 +151,8 @@ public class DBManager {
 	public boolean overdueList(String projectName, boolean isOverDue) {
 		String sign = isOverDue ? "<" : ">=";
 		try {
-			ResultSet rs = st.executeQuery("SELECT * FROM " + projectName + " WHERE due " + sign + " datetime()");
+			ResultSet rs = st.executeQuery("SELECT * FROM " + projectName + " WHERE due " + sign + " datetime()" 
+					+ " ORDER BY " + orderCriteria);
 			printCurrentRecords(rs);
 			rs.close();
 			return true;
@@ -160,7 +165,7 @@ public class DBManager {
 	public boolean showListByCompletion(boolean isFinished) {
 		try {
 			int finished = isFinished ? 1 : 0;
-			ResultSet rs = st.executeQuery("SELECT * FROM todo WHERE finished = " + finished);
+			ResultSet rs = st.executeQuery("SELECT * FROM todo WHERE finished = " + finished + " ORDER BY " + orderCriteria);
 			printCurrentRecords(rs);
 			rs.close();
 			return true;
@@ -223,7 +228,6 @@ public class DBManager {
 	
 	//SQL Injection 대비 SQL 업데이트 메소드
 	private void executeUpdate(String sql, String... items) throws Exception{
-		
 		PreparedStatement stmt = connection.prepareStatement(sql);
 		int parameterIndex = 1;
 		
@@ -235,7 +239,6 @@ public class DBManager {
 	}
 	//SQL Injection 대비 SQL 업데이트 메소드
 	private ResultSet executeQuery(String sql, String... items) throws Exception{
-		
 		PreparedStatement stmt = connection.prepareStatement(sql);
 		int parameterIndex = 1;
 		
@@ -251,15 +254,19 @@ public class DBManager {
 	public void printCurrentRecords(ResultSet rs) throws SQLException {
 		//YYYY-MM-DD HH:MM:SS
 		ColoredPrinter cp = new ColoredPrinter.Builder(1, false).build();
-		String leftAlignFormat = "| %-15s | %-23s |";
-		System.out.format("+-----------------+-------------------------+%n");
-		System.out.format("|      What       |          Due            |%n");
-		System.out.format("+-----------------+-------------------------+%n");
+		String leftAlignFormat = "| %-3s | %-15s | %-23s |";
+		System.out.format("+-----+-----------------+-------------------------+%n");
+		System.out.format("| No. |       What      |          Due            |%n");
+		System.out.format("+-----+-----------------+-------------------------+%n");
 		while (rs.next()) {
 			String what = rs.getString("what");
 			String due = rs.getString("due");
+			String id = rs.getString("id");
 			
 			if(dDay(Integer.parseInt(due.substring(0, 4)),Integer.parseInt(due.substring(5, 7)),Integer.parseInt(due.substring(8, 10))) >= -7){
+				cp.print("|");
+				cp.print(String.format(" %-3s " , id),Attribute.NONE, FColor.WHITE, BColor.RED);
+				cp.clear();
 				cp.print("|");
 				cp.print(String.format(" %-15s " , what),Attribute.NONE, FColor.WHITE, BColor.RED);
 				cp.clear();
@@ -268,21 +275,24 @@ public class DBManager {
 				cp.clear();
 				cp.print("|");
 			}else{
-				System.out.print(String.format(leftAlignFormat , what , due ));
+				System.out.print(String.format(leftAlignFormat , id,  what , due ));
 			}
 
-			printTagsOf(rs.getString("id"));
+			printTagsOf(id);
 		}
-		System.out.format("+-----------------+-------------------------+%n");
+		System.out.format("+-----+-----------------+-------------------------+%n");
 		
 	}
 	
 	private void printTagsOf(String id) {
 		try {
 			ResultSet rs = executeQuery("SELECT name FROM tag WHERE todo_id = ?", id);
-			System.out.print(" Tags : ");
-			while(rs.next()) {
-				System.out.print(rs.getString(1) + " ");
+			if(rs.next()) {
+				System.out.print(" Tags : ");
+				System.out.print(rs.getString(1));
+				while(rs.next()) {
+					System.out.print(", " + rs.getString(1) );
+				}
 			}
 			System.out.println();
 		} catch (Exception e) {
@@ -317,6 +327,26 @@ public class DBManager {
 		
 		return (int)(count+1); // 날짜는 하루 + 시켜줘야합니다.
 
+	}
+	
+	public String getOrderCriteria() {
+		return orderCriteria;
+	}
+	
+	public void setOrderCriteria(String opt) {
+		switch (opt) {
+		case "i":
+			orderCriteria = "id";
+		case "c":
+			orderCriteria = "what";
+			break;
+		case "p":
+			orderCriteria = "priority";
+			break;
+		case "d":
+			orderCriteria = "due";
+			break;
+		}
 	}
 	
 	
