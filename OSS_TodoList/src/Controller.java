@@ -1,156 +1,241 @@
-import java.io.Console;
+import java.sql.ResultSet;
 
 public class Controller {
 	private DBManager db;
-	private Console console;
-	private boolean running = false;
 	
 	Controller() {
 		db = new DBManager();
-		console = System.console();
 		db.connectionDB("./testDB");
-		db.createTable("todo");
-		running = true;
+		String[] CreatingTableQuery = {"CREATE TABLE IF NOT EXISTS todo "
+				+ " (id INTEGER PRIMARY KEY AUTOINCREMENT, what TEXT UNIQUE NOT NULL, due TEXT NOT NULL,"
+				+ "finished INTEGER DEFAULT 0, priority INTEGER DEFAULT 0)",
+				"CREATE TABLE IF NOT EXISTS tag "
+						+ "(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, todo_id INTEGER,"
+						+ "		FOREIGN KEY (todo_id) REFERENCES todo(id) ON UPDATE CASCADE) "};
+		db.createTable(CreatingTableQuery);
 	}
 	
+
+
 	
-	public String inputMainCommand() {
-		return console.readLine("\nChoose what to do:\n(a: Add todo, l: List todo, o: Order option"
-				+ " t: Tag settings, q: Quit)? ");
-	}
-	
-	/***** todo: rename this method as a proper one *****/
-	public void others(String command) {
-		if(command.matches("^l\\s-..?$")){
-			if(command.length() == 4)
-				db.listTodo("todo", command.charAt(3));
-			else
-				db.listTodo("todo", command.charAt(3),command.charAt(4));
+	public ResultSet listAll() {
+		try {
+			return db.executeQuery("SELECT * FROM todo ORDER BY " + db.getOrderCriteria());
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
 		}
 	}
 	
+	public ResultSet listByOptions(String projectName,char... options) {
+		try {
+			ResultSet rs;
+			String sql = "SELECT * FROM " + projectName;
+			switch(options[0]){
+			case 'a':
+				sql = "SELECT * FROM " + projectName;
+				break;
+			case 'w':
+				sql += " WHERE due BETWEEN date('now','weekday 0') AND date('now','weekday 0','+6 days')";
+				break;
+			case 't':
+				sql += " WHERE due LIKE date('now','localtime')||'%'";
+				break;
+			default:
+				if((options.length == 1) && (49 <=options[0] && options[0]<=57)){
+					sql += " WHERE due LIKE strftime('%Y','now')||'-0"+options[0]+"'||'%'";
+				}else if((options.length == 2) && (options[0] == 49)){
+					sql += " WHERE due LIKE strftime('%Y','now')||'-"+options[0]+options[1]+"'||'%'";
+				}
+				break;
+			}
+			sql += " ORDER BY " + db.getOrderCriteria(); // insert sorting option
+			rs = db.executeQuery(sql);
+			return rs;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public ResultSet listById(String id) {
+		try {
+			return db.executeQuery("SELECT what, due, finished, priority FROM todo WHERE id = ?", id);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public ResultSet listByTimeExcess(boolean isOverDue) {
+		String sign = isOverDue ? "<" : ">=";
+		try {
+			return db.executeQuery("SELECT * FROM todo WHERE due " + sign + " datetime()" 
+					+ " ORDER BY " + db.getOrderCriteria());
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public ResultSet listByCompletion(boolean isFinished) {
+		try {
+			int finished = isFinished ? 1 : 0;
+			return db.executeQuery("SELECT * FROM todo WHERE finished = " + finished + " ORDER BY " + db.getOrderCriteria());
+		} catch(Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 	
 	
 	/* Add a record to the list */
-	public void addList() {
-		String what = null;
-
-		if(db.addTodo( what = console.readLine("Todo? : "), console.readLine("Due date? (YYYY-MM-DD HH:MM:SS) : "),
-				console.readLine("Priority? ")))  {
-			System.out.println("=======Add Success======\n");
-			setTags(what);
-			
+	public void addList(String what, String due, String priority) {
+		try {
+			db.executeUpdate("INSERT INTO todo (what, due, priority) VALUES (?, ?, ?)",what,due+".000", priority);
+			db.commit();
+		} catch (Exception e) {
+			db.rollback();
+			e.printStackTrace();
 		}
-		else 
-			System.out.println("========Add Fail========\n");
-		
-		
+	}
+	
+	/*Check the repetition so that a tuple can't have the same tag names.*/
+	public boolean hasSameTag(String what, String tagName) {
+		try {
+			String todoID;
+			ResultSet idSearchResult = db.executeQuery("SELECT id FROM todo WHERE what = ?", what), tagSearchResult;
+			if(idSearchResult.next()) {
+				todoID = idSearchResult.getString(1); 
+				tagSearchResult = db.executeQuery("SELECT * FROM tag WHERE name = ? AND todo_id = ?", tagName, todoID);
+				if(tagSearchResult.next()) {
+					return true;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 	
 	/* Add tags to a record */
-	private void setTags(String what) {
-		String tag;
-		if(console.readLine("Would you like to set any tags?(Enter only 'y' to answer yes)").equals("y")) {
-			while(true) {
-				tag = console.readLine("Tag name(enter 'q' to quit) : ");
-				if(tag.equals("q"))	break;
-				if(db.hasTag(what, tag))	
-					System.out.println("This tag already exists on this entry!");
-				else 
-					db.addTag(what, tag);
+	public boolean setTag(String what, String tag) {
+		if(hasSameTag(what, tag))
+			return false;
+		else {
+			try {
+				ResultSet id_res = db.executeQuery("SELECT id FROM todo WHERE what = ?", what); id_res.next();
+				String id = id_res.getString("id");
+				db.executeUpdate("INSERT INTO tag (name, todo_id) VALUES (?, ?)", tag, id);
+				db.commit();
+				id_res.close();
+				return true;
+			} catch (Exception e) {
+				db.rollback();
+				e.printStackTrace();
+				return false;
 			}
 		}
 	}
 	
-	/* Manage tags */
-	public void tagSettings() {
-		String ans, info = "Select what you want.\n"
-				+ "1. Show all tags\n"
-				+ "2. Remove a tag from current list\n"
-				+ "3. Remove all tags\n"
-				+ "0. Return\n"
-				+ ": ";
-		
-		while(true) {
-			ans = console.readLine(info);
-			if(ans.equals("0")) break;
-			switch(ans) {
-			case "1":
-				db.printCurrentTags();
-				break;
-			case "2":
-				break;
-			case "3":
-				break;
-			case "4":
-				break;
-			case "5":
-				break;
-				
-			}
+	public boolean checkValidID(String id) {
+		try {
+			return db.executeQuery("SELECT id FROM todo WHERE id = ?", id).next();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
 		}
 	}
 	
-	public void chooseShowOption() {
-		String ans, info = "Select what you want to view.\n"
-				+ "1. All\n"
-				+ "2. The list whose due has expired\n"
-				+ "3. The list whose due has not expired\n"
-				+ "4. Finished list\n"
-				+ "5. Unfinished list\n"
-				+ "6. Show list by tags\n"
-				+ "0. Return\n"
-				+ ": ";
-		
-		while(true) {
-			ans = console.readLine(info);
-			if(ans.equals("0")) break;
-			switch(ans) {
-			case "1":
-				db.listTodo("todo");
-				break;
-			case "2":
-				db.overdueList("todo", true);
-				break;
-			case "3":
-				db.overdueList("todo", false);
-				break;
-			case "4":
-				db.showListByCompletion(true);
-				break;
-			case "5":
-				db.showListByCompletion(false);
-				break;
-			case "6":
-				inputTag();
-			}
-		}
+	
 
+	public ResultSet listByTags(String[] tags) {
+		try {
+			StringBuilder query = new StringBuilder("todo ");
+			int numOfTags = tags.length;
+			for(int i = 0; i < numOfTags; i++) {
+				query = new StringBuilder("(SELECT * FROM ").append(query.toString())
+						.append("WHERE id IN (SELECT todo_id FROM tag WHERE name = ?) )");
+			}
+			return db.executeQuery(query.substring(1,query.length()-2), tags);
+		} catch(Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 	
-	private void inputTag() {
-		String inp, tags[];
-		inp = console.readLine("Enumerate tags what you want to view.(Use space as a delimiter)\n");
-		tags = inp.split(" ");
-		db.showListByTags(tags);
+	public ResultSet getAllTags() {
+		try {
+			return db.executeQuery("SELECT name from tag");
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 	
-	public void setOrderOption() {
-		System.out.println("Enumerate order option as which you want to view list.\n"
-				+ "Current option: " + db.getOrderCriteria() + "\n"
-		+ "(i: id, c: content(lexicographic), d: due)\n");
-		String inp = console.readLine("Or type 'b' if you don't want to touch anything\n:");
-		if(inp.equals("b"))
-			return;
-		db.setOrderCriteria(inp);
+	public boolean isRepeat(String what) {
+		try {
+			ResultSet rs = db.executeQuery("SELECT * FROM todo WHERE what = ?", what);
+			return rs.next();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 	
-	public boolean isRunning() {
-		return running;
+	public void updateContent(String id, String todo, String due, String finished, String priority) throws Exception {
+		ResultSet rs = db.executeQuery("SELECT * FROM TODO WHERE id = ?", id);
+		if(todo.equals("-"))
+			todo = rs.getString("what");
+		if(due.equals("-"))
+			due = rs.getString("due");
+		if(finished.equals("-"))
+			finished = rs.getString("finished");
+		else
+			finished = finished.equals("y") ? "1" : "0";
+		if(priority.equals("-"))
+			priority = rs.getString("-");
+		
+		String sql = "UPDATE todo SET what = ?, due = ?, finished = ?, priority = ? WHERE id = ?";
+		db.executeUpdate(sql, todo, due, finished, priority, id);
+	}
+	
+	public String getOrderCriteria() {
+		return db.getOrderCriteria();
+	}
+	
+	public void setOrderCriteria(String opt) {
+		
+		switch (opt) {
+		case "n":
+			db.setOrderCriteria("id");
+			break;
+		case "c":
+			db.setOrderCriteria("what");
+			break;
+		case "p":
+			db.setOrderCriteria("priority");
+			break;
+		case "d":
+			db.setOrderCriteria("due");
+			break;
+		}
+	}
+	
+	public void commit() {
+		db.commit();
+	}
+	
+	public void rollback() {
+		db.rollback();
+	}
+	
+	public ResultSet getTagsById(String id) throws Exception {
+		return db.executeQuery("SELECT name FROM tag WHERE todo_id = ?", id);
 	}
 	
 	public void end() {
-		running = false;
 		db.close();
 	}
 

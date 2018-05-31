@@ -2,28 +2,35 @@
 public class Main {
 
 	public static void main(String[] args) {
-		Controller controller = new Controller();
-
-		while (controller.isRunning()) {
-			String command = controller.inputMainCommand();
+		View view = new View();
+		boolean run = true;
+		view.initialScreen();
+		
+		while (run) {
+			String command = view.inputCommand("Choose what to do.\n"
+					+ "(a: Add todo, l: List todo, m: modify contents o: Order option, t: Tag settings, q: Quit)\n: ");
 			switch (command) {
 			case "a":
-				controller.addList();
+				view.inputForAdd();
 				break;
 			case "l":
-				controller.chooseShowOption();
+				view.chooseShowOption();
+				break;
+			case "m":
+				view.inputToModify();
 				break;
 			case "o":
-				controller.setOrderOption();
+				view.setOrderOption();
 				break;
 			case "t":
-				controller.tagSettings();
+				view.tagSettings();
 				break;
 			case "q":
-				controller.end();
+				view.exit();
+				run = false;
 				break;
 			default:
-				controller.others(command);
+				view.optionalList(command);
 				break;
 			}
 		}
