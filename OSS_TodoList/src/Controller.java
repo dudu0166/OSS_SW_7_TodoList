@@ -195,7 +195,7 @@ public class Controller {
 		else
 			finished = finished.equals("y") ? "1" : "0";
 		if(priority.equals("-"))
-			priority = rs.getString("-");
+			priority = rs.getString("priority");
 		
 		String sql = "UPDATE todo SET what = ?, due = ?, finished = ?, priority = ? WHERE id = ?";
 		db.executeUpdate(sql, todo, due, finished, priority, id);
