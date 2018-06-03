@@ -1,0 +1,23 @@
+name: todo-b7
+version: "0.1.1"
+summary: Todo list for Linux Command Line
+description: Todo list made by B7, HYU. Part of "OSS SW Development" class
+grade: devel
+
+apps:
+  todo-b7:
+    command: java -jar $SNAP/todo-b7.jar
+
+
+parts:
+  todo-b7:
+    after: [desktop-glib-only]
+    plugin : gradle
+    source : .
+    build: |
+      export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64"
+      export MANPATH=":/snap/todo-b7/current/share/man"
+    install: |
+      cp todo-b7.jar $SNAPCRAFT_PART_INSTALL/
+    build-packages:
+      - openjdk-8-jdk
