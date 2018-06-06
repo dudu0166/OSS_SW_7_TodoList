@@ -15,9 +15,6 @@ public class Controller {
 		db.createTable(CreatingTableQuery);
 	}
 	
-
-
-	
 	public ResultSet listAll() {
 		try {
 			return db.executeQuery("SELECT * FROM todo ORDER BY " + db.getOrderCriteria());
@@ -148,8 +145,6 @@ public class Controller {
 		}
 	}
 	
-	
-
 	public ResultSet listByTags(String[] tags) {
 		try {
 			StringBuilder query = new StringBuilder("todo ");
@@ -199,6 +194,11 @@ public class Controller {
 		
 		String sql = "UPDATE todo SET what = ?, due = ?, finished = ?, priority = ? WHERE id = ?";
 		db.executeUpdate(sql, todo, due, finished, priority, id);
+	}
+	
+	public void removeContent(String id) throws Exception {		
+		String sql = "DELETE FROM todo WHERE id =?";
+		db.executeUpdate(sql, id);
 	}
 	
 	public String getOrderCriteria() {
