@@ -203,16 +203,66 @@ public class View {
 		}
 		System.out.println("");
 	}
+	public void inputToRemove() {
+		boolean choosing = true;
+		
+		while(choosing) {
+			String info = "Please input content No. that you want to remove. (Show list: l Back: b)";
+			String id = inputCommand(info);
+			if(id.equals("l")) {
+				chooseShowOption();
+				continue;
+			}
+			if(id.equals("b")) {
+				return;
+			}
+			//check the validity of id
+			if(isPositiveInteger(id) && controller.checkValidID(id)) {
+				try {
+					ResultSet rs = controller.listById(id); rs.next();
+					String isFinished = rs.getString("finished").equals("1") ? "Finished" : "Unfinished";
+					System.out.println("\n<<Current state>>\n" 
+							+ "TODO : " + rs.getString("what") + ", "
+							+ "DUE : " + rs.getString("due") + ", " + isFinished + ", "
+							+ "Priority : " + rs.getString("priority") + "\n");
+					String com;
+					
+					while(!(com = inputCommand("Are you sure you want to remove this todo?(y or n)"+System.lineSeparator())).equals("y") && !com.equals("n")) {
+						System.out.println("Please enter y or n.");
+					}
+					
+					if(com.equals("y")) {
+						controller.removeContent(id);
+						System.out.println("Remove OK");
+					}	
+					controller.commit();
+					choosing = false;
+				} catch(Exception e) {
+					controller.rollback();
+					e.printStackTrace();
+				}
+			} else {
+				System.out.println("Invalid id.");
+			}
+		}
+		System.out.println("");
+	}
 	
 	
 	
 	/***** todo: rename this method as a proper one *****/
 	public void optionalList(String command) {
-		if(command.matches("^l\\s-..?$")){
+		if(command.matches("^l\\s-..?$")){//List todo에 들어 
 			if(command.length() == 4)
-				controller.listByOptions("todo", command.charAt(3));
+				rs =controller.listByOptions("todo", command.charAt(3));
 			else
-				controller.listByOptions("todo", command.charAt(3),command.charAt(4));
+				rs = controller.listByOptions("todo", command.charAt(3),command.charAt(4));
+			try {
+				printCurrentRecords();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 	
