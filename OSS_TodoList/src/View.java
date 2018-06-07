@@ -342,7 +342,7 @@ public class View {
 		long tday = today.getTimeInMillis()/86400000; 
 		long count = tday - day;
 		
-		return (int)(count+1); // �궇吏쒕뒗 �븯猷� + �떆耳쒖쨾�빞�빀�땲�떎.
+		return (int)(count+1); // 날짜는 하루 + 시켜줘야합니다.
 
 	}
 	
