@@ -6,9 +6,9 @@ public class Main {
 
 		View view = new View();
 		
-		if(args.length >=1) {//메인 프로그램 실행
+		if(args.length >=1) {
 			new ArgparseController(args,view);
-		}else {//argparse4j를 통한 메소드 호출
+		}else {
 			boolean run = true;
 			view.initialScreen();
 			
