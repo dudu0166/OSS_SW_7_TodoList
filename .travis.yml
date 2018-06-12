@@ -6,7 +6,6 @@ matrix:
 
   include:
     - os: linux
-      dist: trusty
     - os: osx
       osx_image: xcode9.3
     
@@ -28,5 +27,5 @@ script:
   - cd ./OSS_TodoList/
   - ant build
 
-before-script:
+before-install:
   - source /opt/jdk_switcher/jdk_switcher.sh
