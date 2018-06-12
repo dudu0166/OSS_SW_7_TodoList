@@ -4,16 +4,53 @@
 .SH NAME
 TODO LIST
 .SH SYNOPSIS
-This <TODO LIST> made by team 7.
+[ --version] : You can check this version.
 .br
-This list blah blah~~~
+[ --help], [-h] : You can see the directions.
+.br
+[--today], [-t] : You can see your schedule that you need to do today.
+.br
+[--all], [-a] : You can see all of your schedule.
+.br
+[--week], [-w] : You can see your schedule that you need to finish in this week.
+.br
+[--month], [-m] : You can see your schedule that you need to finish in this month.
+.br
+[--add] : Add your schedule.
+.br
+[--list] : Check your schedule by several options.
+.br
+[--remove] : Remove schedule.
+.br
+[--modify] : Modify your schedule of state, tag, due date.
+.br
+[--setOrder] : Set order options. 
+.br
+[--setTag] : Set tags.
+.br
 .SH DESCRIPTION
-TODO List is 
+.B Add todo 
+: You can add your schedule by due date and time.
+.br 
+.B List todo
+: You can view your schedule by some option (All / Expired / Not Expired / Finished / Unfinished / Tag)
+.br 
+.B Modify todo 
+: Enter a number that point the schedule you want to modify
+.br 
+.B Remove todo
+ : You can remove your own schedule by schedule number. 
+.br 
+.B Order option
+ : You can set order options about list. 
+.br 
+.B Tag setting
+ : You can set or modify your own tags. (Show all tags / Remove in current list / Remove all)
 .SH OPTIONS
 The TODO List 
-.SH SEE ALSO
-???? 
-.SH BUGS
-No known bugs.
+.SH BUG REPORT
+Please make issues on our GitHub.
+.br
+https://github.com/dudu0166/OSS_SW_7_TodoList
 .SH AUTHOR
 Team 7
