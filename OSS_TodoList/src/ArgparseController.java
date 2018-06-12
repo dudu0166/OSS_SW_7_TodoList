@@ -15,25 +15,25 @@ public class ArgparseController {
 				.version("${prog} 0.0.1");
 
 		parser.addArgument("--version").action(Arguments.version());
-		// 전체 할 일을 보여주는 옵션
+		
 		parser.addArgument("-t", "--today")
 		.dest("today")
 		.help(" ")
 		.action(Arguments.storeTrue());
 
-		// 오늘 할 일을 보여주는 옵션
+		
 		parser.addArgument("-a", "--all")
 		.dest("all")
 		.help(" ")
 		.action(Arguments.storeTrue());
 
-		// 이번 주에 할 일을 보여주는 옵션
+		
 		parser.addArgument("-w", "--week")
 		.dest("week")
 		.help("")
 		.action(Arguments.storeTrue());
 
-		// 해당 달의 할 일을 보여주는 옵션
+		
 		parser.addArgument("-m", "--month")
 		.dest("month")
 		.help("")
