@@ -4,6 +4,12 @@ matrix:
   include:
     - os: linux
       dist: trusty
+      jdk:
+        - oraclejdk8
+        - oraclejdk10
+        - oraclejdk-ea
+        - openjdk10
+        - openjdk11
     - os: osx
       osx_image: xcode9.3
   allow_failures:
@@ -14,10 +20,7 @@ cache:
   - $HOME/.m2
   
 jdk:
-  - oraclejdk10
-  - oraclejdk-ea
-  - openjdk10
-  - openjdk11
+  - oraclejdk8
   
 script: 
 - cd ./OSS_TodoList/
