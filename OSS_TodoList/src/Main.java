@@ -11,7 +11,7 @@ public class Main {
 		}else {//argparse4j를 통한 메소드 호출
 			boolean run = true;
 			view.initialScreen();
-			
+
 			while (run) {
 				String command = view.inputCommand("Choose what to do.\n"
 						+ "(a: Add todo, l: List todo, m: modify contents, r: Remove  todo, o: Order option, t: Tag settings, q: Quit)\n: ");
@@ -42,6 +42,7 @@ public class Main {
 					view.optionalList(command);
 					break;
 				}
+				view.clearTerminal();
 			}
 		}
 		

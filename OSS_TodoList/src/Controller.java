@@ -1,11 +1,27 @@
+import java.io.File;
 import java.sql.ResultSet;
+
+import javax.swing.filechooser.FileSystemView;
 
 public class Controller {
 	private DBManager db;
 	
 	Controller() {
+		
+		String path = FileSystemView.getFileSystemView().getDefaultDirectory().getPath();
+		File document = new File(path);
+		if(document.canWrite()) {
+			File dir = new File(path+File.separator+"todo-b7");
+			if(!dir.exists()){
+				dir.mkdir();
+				path+=File.separator+"todo-b7";
+			}			
+		}else {
+			path = ".";
+		}
+		
 		db = new DBManager();
-		db.connectionDB("./testDB");
+		db.connectionDB(path+File.separator+"todoDB");
 		String[] CreatingTableQuery = {"CREATE TABLE IF NOT EXISTS todo "
 				+ " (id INTEGER PRIMARY KEY AUTOINCREMENT, what TEXT UNIQUE NOT NULL, due TEXT NOT NULL,"
 				+ "finished INTEGER DEFAULT 0, priority INTEGER DEFAULT 0)",
