@@ -18,6 +18,7 @@ jdk:
   - oraclejdk-ea
   - openjdk10
   - openjdk11
+  
 script: 
 - cd ./OSS_TodoList/
 - ant build
