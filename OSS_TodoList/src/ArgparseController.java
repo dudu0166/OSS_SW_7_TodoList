@@ -12,7 +12,7 @@ public class ArgparseController {
 				.version("${prog} 0.7.2");
 
 		parser.addArgument("--version").action(Arguments.version());
-
+    
 		parser.addArgument("-t", "--today")
 		.dest("today")
 		.help("Yon can see your schedule that you need to do today.")
@@ -24,12 +24,10 @@ public class ArgparseController {
 		.help(" ")
 		.action(Arguments.storeTrue());
 
-
 		parser.addArgument("-w", "--week")
 		.dest("week")
 		.help("")
 		.action(Arguments.storeTrue());
-
 
 		parser.addArgument("-m", "--month")
 		.dest("month")
@@ -38,36 +36,30 @@ public class ArgparseController {
 		.type(Integer.class)
 		.choices(Arguments.range(1, 12));
 
-
 		parser.addArgument("--add")
 		.dest("add")
 		.help("")
 		.action(Arguments.storeTrue());
-
 
 		parser.addArgument("--list")
 		.dest("list")
 		.help("")
 		.action(Arguments.storeTrue());
 
-
 		parser.addArgument("--modify")
 		.dest("modify")
 		.help("")
 		.action(Arguments.storeTrue());
-
 
 		parser.addArgument("--remove")
 		.dest("remove")
 		.help("")
 		.action(Arguments.storeTrue());
 
-
 		parser.addArgument("--setOrder")
 		.dest("order")
 		.help("")
 		.action(Arguments.storeTrue());
-
 
 		parser.addArgument("--setTag")
 		.dest("tag")
