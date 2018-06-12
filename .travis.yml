@@ -7,9 +7,7 @@ matrix:
       dist: trusty
     - os: osx
       osx_image: xcode9.3
-      script: 
-        - source /opt/jdk_switcher/jdk_switcher.sh
-      
+    
   allow_failures:
     - os: osx
   
@@ -25,5 +23,6 @@ jdk:
   - openjdk11
   
 script: 
+- source /opt/jdk_switcher/jdk_switcher.sh
 - cd ./OSS_TodoList/
 - ant build
