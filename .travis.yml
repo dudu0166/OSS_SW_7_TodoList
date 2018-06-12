@@ -23,6 +23,8 @@ jdk:
   - openjdk11
   
 script: 
-- source /opt/jdk_switcher/jdk_switcher.sh
-- cd ./OSS_TodoList/
-- ant build
+  - cd ./OSS_TodoList/
+  - ant build
+
+before-script:
+  - source /opt/jdk_switcher/jdk_switcher.sh
