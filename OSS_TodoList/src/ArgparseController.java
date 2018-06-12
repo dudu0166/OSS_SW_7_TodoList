@@ -12,25 +12,25 @@ public class ArgparseController {
 				.version("${prog} 0.7.2");
 
 		parser.addArgument("--version").action(Arguments.version());
-		// 전체 할 일을 보여주는 옵션
+
 		parser.addArgument("-t", "--today")
 		.dest("today")
 		.help("Yon can see your schedule that you need to do today.")
 		.action(Arguments.storeTrue());
 
-		// 오늘 할 일을 보여주는 옵션
+		
 		parser.addArgument("-a", "--all")
 		.dest("all")
 		.help(" ")
 		.action(Arguments.storeTrue());
 
-		// 이번 주에 할 일을 보여주는 옵션
+
 		parser.addArgument("-w", "--week")
 		.dest("week")
 		.help("")
 		.action(Arguments.storeTrue());
 
-		// 해당 달의 할 일을 보여주는 옵션
+
 		parser.addArgument("-m", "--month")
 		.dest("month")
 		.help("")
@@ -38,37 +38,37 @@ public class ArgparseController {
 		.type(Integer.class)
 		.choices(Arguments.range(1, 12));
 
-		// 할 일을 추가하는 기본 기능
+
 		parser.addArgument("--add")
 		.dest("add")
 		.help("")
 		.action(Arguments.storeTrue());
 
-		// 할 일 목록을 보여주는 기본 기능
+
 		parser.addArgument("--list")
 		.dest("list")
 		.help("")
 		.action(Arguments.storeTrue());
 
-		// 할 일을 수정하는 기본 기능
+
 		parser.addArgument("--modify")
 		.dest("modify")
 		.help("")
 		.action(Arguments.storeTrue());
 
-		// 할 일을 리스트에서 삭제하는 기본 기능
+
 		parser.addArgument("--remove")
 		.dest("remove")
 		.help("")
 		.action(Arguments.storeTrue());
 
-		// 리스트에서 할 일을 보여주는 순서를 설정하는 기능
+
 		parser.addArgument("--setOrder")
 		.dest("order")
 		.help("")
 		.action(Arguments.storeTrue());
 
-		// 할 일에 태그를 설정하는 기능
+
 		parser.addArgument("--setTag")
 		.dest("tag")
 		.help("")
