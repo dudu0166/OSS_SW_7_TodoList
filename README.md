@@ -1,3 +1,4 @@
+https://travis-ci.com/dudu0166/OSS_SW_7_TodoList.svg?branch=master
 # OSS_SW_7_TodoList
 
 Todo-list for Linux Commnad Line, made by Blue-7. Part of "OSS SW Development" class
