@@ -1,17 +1,13 @@
 language: java
 
 matrix:
+
   include:
     - os: linux
       dist: trusty
-      jdk:
-        - oraclejdk8
-        - oraclejdk10
-        - oraclejdk-ea
-        - openjdk10
-        - openjdk11
     - os: osx
       osx_image: xcode9.3
+      
   allow_failures:
     - os: osx
   
@@ -21,6 +17,10 @@ cache:
   
 jdk:
   - oraclejdk8
+  - oraclejdk10
+  - oraclejdk-ea
+  - openjdk10
+  - openjdk11
   
 script: 
 - cd ./OSS_TodoList/
