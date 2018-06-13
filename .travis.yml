@@ -27,5 +27,5 @@ script:
   - cd ./OSS_TodoList/
   - ant build
   - cd ./bin
-  -java Main
+  - java Main
 
