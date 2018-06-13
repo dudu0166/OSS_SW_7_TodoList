@@ -6,12 +6,14 @@ Todo-list for Linux Commnad Line, made by Blue-7. Part of "OSS SW Development" c
 
 ## How to install
 
-See the [github releases page](https://github.com/promisemee/OSS_SW_7_TodoList/releases) to get .deb package
+Check our [github releases page](https://github.com/dudu0166/OSS_SW_7_TodoList/releases) to get .deb package
 
+  
 If you're using Ubuntu, install it by dpkg:
 ```
 $ sudo dpkg -i todo-b7
 ```
+
 
 ## How to Use
 
