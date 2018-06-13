@@ -6,12 +6,51 @@ Todo-list for Linux Commnad Line, made by Blue-7. Part of "OSS SW Development" c
 
 ## How to install
 
-You need to install snapd to install this program. 
+See the [github releases page](https://github.com/promisemee/OSS_SW_7_TodoList/releases/tag/v1.0.0) to get .deb package
 
-If you are using Ubuntu 16.04, no installation steps are required and you can use snapd directly.
-If your're using other Linux OS, Please check [here](https://docs.snapcraft.io/core/install)
+If you're using Ubuntu, install it by dpkg:
+```
+$ sudo dpkg -i todo-b7
+```
 
-To install our program, 
-```
-$snap install todo-b7 --channel=edge
-```
+## How to Use
+
+Add todo : You can add your schedule by due date and time.
+  
+List todo : You can view your schedule by some option (All / Expired / Not Expired / Finished / Unfinished / Tag)
+  
+Modify todo : Enter a number that point the schedule you want to modify
+  
+Remove todo : You can remove your own schedule by schedule number. 
+  
+Order option : You can set order options about list. 
+  
+Tag setting : You can set or modify your own tags. (Show all tags / Remove in current list / Remove all)
+
+
+` --version` : You can check this version.
+ 
+` --help`, `-h` : You can see the directions.
+ 
+`--today`, `-t` : You can see your schedule that you need to do today.
+ 
+`--all`, `-a` : You can see all of your schedule.
+ 
+`--week`, `-w` : You can see your schedule that you need to finish in this week.
+ 
+`--month`, `-m` : You can see your schedule that you need to finish in this month.
+ 
+`--add` : Add your schedule.
+ 
+`--list` : Check your schedule by several options.
+ 
+`--remove` : Remove schedule.
+ 
+`--modify` : Modify your schedule of state, tag, due date.
+ 
+`--setOrder` : Set order options. 
+ 
+`--setTag` : Set tags.
+ 
+
+
