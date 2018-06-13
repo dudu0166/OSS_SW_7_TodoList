@@ -26,6 +26,6 @@ jdk:
 script: 
   - cd ./OSS_TodoList/
   - ant build
+  - cd ./bin
+  -java Main
 
-before-install:
-  - source /opt/jdk_switcher/jdk_switcher.sh
