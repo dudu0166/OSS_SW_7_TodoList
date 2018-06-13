@@ -3,9 +3,9 @@ public class Main {
 
 	public static void main(String[] args) {
 		
-		if(args.length >=1) {//메인 프로그램 실행
+		if(args.length >=1) {
 			new ArgparseController(args);
-		}else {//argparse4j를 통한 메소드 호출
+		}else {
 			
 			View view = new View();
 			boolean run = true;
