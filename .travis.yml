@@ -27,5 +27,4 @@ script:
   - cd ./OSS_TodoList/
   - ant build
   - cd ../
-  - java -jar todo-b7.jar
-  - q
+  - java -jar todo-b7.jar < travisInputTest
