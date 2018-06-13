@@ -28,4 +28,4 @@ script:
   - ant build
   - cd ../
   - java -jar todo-b7.jar --version
-  - java -jar todo-b7.jat -a
+  - java -jar todo-b7.jar -a
