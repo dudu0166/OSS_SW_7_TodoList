@@ -27,4 +27,5 @@ script:
   - cd ./OSS_TodoList/
   - ant build
   - cd ../
-  - java -jar todo-b7.jar < travisinputTest
+  - java -jar todo-b7.jar --version
+  - java -jar todo-b7.jat --a
