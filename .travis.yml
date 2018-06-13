@@ -26,6 +26,6 @@ jdk:
 script: 
   - cd ./OSS_TodoList/
   - ant build
-  - cd ./bin
-  - java Main
-
+  - cd ../
+  -java -jar todo-b7.jar
+  -q
