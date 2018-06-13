@@ -1,11 +1,82 @@
+import java.io.File;
+import java.security.MessageDigest;
 import java.sql.ResultSet;
+
+import javax.swing.filechooser.FileSystemView;
 
 public class Controller {
 	private DBManager db;
 	
 	Controller() {
+		
+		String path = FileSystemView.getFileSystemView().getDefaultDirectory().getPath();
+		File document = new File(path);
+		if(document.canWrite()) {
+			File dir = new File(path+File.separator+"todo-b7");
+			if(!dir.exists()){
+				dir.mkdir();
+				path+=File.separator+"todo-b7";
+			}			
+		}else {
+			path = ".";
+		}
+		
 		db = new DBManager();
-		db.connectionDB("./testDB");
+		db.connectionDB(path+File.separator+"todoDB");
+		String sql = "SELECT count(*) as result FROM sqlite_master WHERE Name = 'userInfo'";
+		
+		try {
+			
+			ResultSet rs = db.executeQuery(sql);
+			rs.next();
+			
+			if(rs.getInt("result") == 0) {
+				String[] unserInfoTableQuery = {"CREATE TABLE userInfo "
+						+ " (id INTEGER PRIMARY KEY AUTOINCREMENT, pass TEXT UNIQUE NOT NULL)",
+				};
+				db.createTable(unserInfoTableQuery);
+				MessageDigest digest = MessageDigest.getInstance("SHA-256");
+	            byte[] hash = digest.digest(new String(System.console().readPassword("Please Input init password.")).getBytes("UTF-8"));
+	            
+	            StringBuffer hexString = new StringBuffer();
+	            
+	            for (int i = 0; i < hash.length; i++) {
+	                String hex = Integer.toHexString(0xff & hash[i]);
+	                if(hex.length() == 1) hexString.append('0');
+	                hexString.append(hex);
+	            }
+	 
+	    		try {
+	    			db.executeUpdate("INSERT INTO userInfo (pass) VALUES (?)",hexString.toString());
+	    			db.commit();
+	    		} catch (Exception e) {
+	    			db.rollback();
+	    			e.printStackTrace();
+	    		}
+			}else {
+				MessageDigest digest = MessageDigest.getInstance("SHA-256");
+	            byte[] hash = digest.digest(new String(System.console().readPassword("Please Input your password.")).getBytes("UTF-8"));
+	            StringBuffer hexString = new StringBuffer();
+	            
+	            for (int i = 0; i < hash.length; i++) {
+	                String hex = Integer.toHexString(0xff & hash[i]);
+	                if(hex.length() == 1) hexString.append('0');
+	                hexString.append(hex);
+	            }
+	            rs = db.executeQuery("SELECT count(*) as result FROM userInfo WHERE pass = ?", hexString.toString());
+	            rs.next();
+	            if(rs.getInt("result") == 0) {
+	            	System.out.println("The password is incorrect.");
+	            	end();
+	            	System.exit(0);
+	            }
+			}
+			rs.close();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		String[] CreatingTableQuery = {"CREATE TABLE IF NOT EXISTS todo "
 				+ " (id INTEGER PRIMARY KEY AUTOINCREMENT, what TEXT UNIQUE NOT NULL, due TEXT NOT NULL,"
 				+ "finished INTEGER DEFAULT 0, priority INTEGER DEFAULT 0)",

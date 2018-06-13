@@ -3,15 +3,14 @@ public class Main {
 
 	public static void main(String[] args) {
 		
-
-		View view = new View();
-		
-		if(args.length >=1) {
-			new ArgparseController(args,view);
-		}else {
+		if(args.length >=1) {//메인 프로그램 실행
+			new ArgparseController(args);
+		}else {//argparse4j를 통한 메소드 호출
+			
+			View view = new View();
 			boolean run = true;
 			view.initialScreen();
-			
+
 			while (run) {
 				String command = view.inputCommand("Choose what to do.\n"
 						+ "(a: Add todo, l: List todo, m: modify contents, r: Remove  todo, o: Order option, t: Tag settings, q: Quit)\n: ");
@@ -42,6 +41,7 @@ public class Main {
 					view.optionalList(command);
 					break;
 				}
+				view.clearTerminal();
 			}
 		}
 		
